@@ -5,18 +5,21 @@ import joblib
 import os
 import pandas as pd
 
-df = pd.read_csv('../Data_Collection/datacollection.csv')
+df = pd.read_csv('Data_Collection\datasets\isl_data.csv')
 
 # Separate features (X) and labels (y)
 X = df.drop(columns=['label'])  # All columns except 'label'
 y = df['label']
 
 # Assuming X contains all coordinate columns and y contains labels
+print("Training run start")
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 # Create and train the model
 rf_model = RandomForestClassifier(n_estimators=100)
-rf_model.fit(X_train, y_train)
+rf_model.fit(X_train.values, y_train)
+
+print("Training run ended")
 
 # Make predictions
 y_pred = rf_model.predict(X_test)
