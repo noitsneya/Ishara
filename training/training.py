@@ -14,13 +14,15 @@ y = df['label']
 
 # Assuming X contains all coordinate columns and y contains labels
 print("Training run start")
+training_start = datetime.now()
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 # Create and train the model
 rf_model = RandomForestClassifier(n_estimators=100)
 rf_model.fit(X_train.values, y_train)
-
-print("Training run ended")
+training_end = datetime.now()
+train_time = training_start - training_end
+print(f"Training run ended: {train_time} seconds")
 
 # Make predictions
 y_pred = rf_model.predict(X_test)
@@ -33,10 +35,10 @@ f1 = f1_score(y_test, y_pred, average='weighted')
 cm = confusion_matrix(y_test, y_pred)
 
 # Print metrics
-print(f"Accuracy: {accuracy:.4f}")
-print(f"Precision: {precision:.4f}")
-print(f"Recall: {recall:.4f}")
-print(f"F1 Score: {f1:.4f}")
+print(f"Accuracy: {accuracy:.7f}")
+print(f"Precision: {precision:.7f}")
+print(f"Recall: {recall:.7f}")
+print(f"F1 Score: {f1:.7f}")
 print("Confusion Matrix:")
 print(cm)
 
@@ -45,7 +47,7 @@ if not os.path.exists('models'):
     os.makedirs('models')
 
 # Save the model
-current_time = datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
-model_filename = f'models/random_forest_model+{current_time}.joblib'
+current_time = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
+model_filename = f'models/random_forest_model_normalised_{current_time}.joblib'
 joblib.dump(rf_model, model_filename)
 print(f"Model saved to {model_filename}")
