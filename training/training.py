@@ -4,6 +4,7 @@ from sklearn.metrics import precision_score, recall_score, f1_score, confusion_m
 import joblib
 import os
 import pandas as pd
+from datetime import datetime
 
 df = pd.read_csv('Data_Collection\datasets\isl_data.csv')
 
@@ -44,6 +45,7 @@ if not os.path.exists('models'):
     os.makedirs('models')
 
 # Save the model
-model_filename = 'models/random_forest_model.joblib'
+current_time = datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
+model_filename = f'models/random_forest_model+{current_time}.joblib'
 joblib.dump(rf_model, model_filename)
 print(f"Model saved to {model_filename}")

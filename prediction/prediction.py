@@ -17,8 +17,9 @@ except FileNotFoundError:
 
 cap = cv2.VideoCapture(0)
 
-recent_predictions = []
-max_predictions = 10
+current_prediction = None
+confidence_counts = {}
+threshold = 3
 
 with mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5) as hands:
     while cap.isOpened():
@@ -38,27 +39,34 @@ with mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5) a
                 for id, landmark in enumerate(hand_landmarks.landmark):
                     features.extend([landmark.x, landmark.y, landmark.z])
                 
-                # Make prediction if model is available
                 if model is not None:
                     try:
                         prediction = model.predict([features])
+                        pred_value = prediction[0]
                         
-                        # Add current prediction to list
-                        recent_predictions.append(prediction[0])
-                        if len(recent_predictions) > max_predictions:
-                            recent_predictions.pop(0)
+                        # Initialize current prediction if needed
+                        if current_prediction is None:
+                            current_prediction = pred_value
                         
-                        # Get most frequent prediction
-                        from collections import Counter
-                        most_common = Counter(recent_predictions).most_common(1)[0][0]
+                        # Update confidence counts
+                        if pred_value == current_prediction:
+                            confidence_counts[pred_value] = 0  # Reset count for current prediction
+                        else:
+                            # Increment count for this prediction
+                            confidence_counts[pred_value] = confidence_counts.get(pred_value, 0) + 1
+                            
+                            # Change current prediction if threshold reached
+                            if confidence_counts[pred_value] >= threshold:
+                                current_prediction = pred_value
+                                confidence_counts = {}  # Reset all counts
                         
                         # Display stable prediction
-                        cv2.putText(image, f'Prediction: {most_common}', (10, 30),
-                                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-                        
+                        cv2.putText(image, f'Prediction: {current_prediction}', (10, 30),
+                                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
                     except Exception as e:
                         cv2.putText(image, f'Prediction error: {str(e)}', (10, 30),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2, cv2.LINE_AA)
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2, cv2.LINE_AA)
+
                 
                 # Draw hand landmarks
                 mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
