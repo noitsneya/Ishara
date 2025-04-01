@@ -13,10 +13,10 @@ from custom_transformers import MediaPipePreprocessor, HandSizeNormalizer
 
 
 # Modified training.py with normalization
-df = pd.read_csv('Data_Collection/datasets/alphabets.csv')
+df = pd.read_csv('Data_Collection/datasets/combined.csv')
 
 # Separate features (X) and labels (y)
-X = df.drop(columns=['label'])  # All columns except 'label'
+X = df.drop(columns=['label']).values.astype(float)  # All columns except 'label'
 y = df['label']
 
 print("Training run start")
@@ -62,6 +62,6 @@ os.makedirs('models', exist_ok=True)
 
 # Save the entire pipeline as the model
 current_time = datetime.now().strftime("%d-%m-%Y-%H-%M-%S")
-model_filename = f'models/hand_gesture_pipeline_common_words{current_time}.joblib'
+model_filename = f'models/pipeline_combined_{current_time}.joblib'
 joblib.dump(pipeline, model_filename)
 print(f"Model saved to {model_filename}")

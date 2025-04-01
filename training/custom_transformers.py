@@ -12,6 +12,9 @@ class MediaPipePreprocessor(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
+        if isinstance(X, list) or isinstance(X, pd.DataFrame):
+            X = np.array(X)
+
         processed_data = []
         for sample in X:
             sample = sample.reshape(21, 3)  # Assuming 21 landmarks with 3 coordinates each

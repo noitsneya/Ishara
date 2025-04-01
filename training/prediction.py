@@ -11,7 +11,7 @@ mp_drawing = mp.solutions.drawing_utils
 
 # Load the entire processing pipeline
 try:
-    pipeline = joblib.load('models\hand_gesture_pipeline_01-04-2025-22-35-00.joblib')
+    pipeline = joblib.load('models\pipeline_combined.joblib')
     print("Model pipeline loaded successfully")
 except FileNotFoundError:
     pipeline = None
@@ -21,7 +21,7 @@ cap = cv2.VideoCapture(0)
 
 current_prediction = None
 confidence_counts = {}
-threshold = 3  # Number of consecutive matches needed
+threshold = 10  # Number of consecutive matches needed
 
 def preprocess_landmarks(landmarks):
     """Convert MediaPipe landmarks to pipeline-compatible format"""
