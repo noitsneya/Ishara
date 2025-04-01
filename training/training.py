@@ -8,83 +8,9 @@ import os
 import pandas as pd
 from datetime import datetime
 import numpy as np
+from custom_transformers import MediaPipePreprocessor, HandSizeNormalizer
 
-# Add the hand size normalization function as a transformer
-class HandSizeNormalizer(BaseEstimator, TransformerMixin):
-    def __init__(self, landmark_count=21):
-        self.landmark_count = landmark_count
-        
-    def fit(self, X, y=None):
-        return self
-        
-    def transform(self, X):
-        # Convert DataFrame to numpy if needed
-        if isinstance(X, pd.DataFrame):
-            X = X.values
-            
-        normalized_data = []
-        num_samples = X.shape[0]
-        
-        for i in range(num_samples):
-            # Reshape to (21 landmarks, 3 coordinates)
-            sample = X[i].reshape(self.landmark_count, 3)
-            
-            # Get wrist position (first landmark in MediaPipe hand tracking)
-            wrist = sample[0]
-            
-            # Center around wrist
-            centered = sample - wrist
-            
-            # Find maximum distance from wrist to any landmark
-            distances = np.linalg.norm(centered, axis=1)
-            max_distance = np.max(distances)
-            
-            # Avoid division by zero
-            if max_distance == 0:
-                max_distance = 1.0
-                
-            # Normalize by this distance
-            normalized_sample = centered / max_distance
-            
-            # Flatten and add to result
-            normalized_data.append(normalized_sample.flatten())
-        
-        return np.array(normalized_data)
 
-# MediaPipe specific preprocessing
-class MediaPipePreprocessor(BaseEstimator, TransformerMixin):
-    def __init__(self, flip_horizontal=False, stabilize=True):
-        self.flip_horizontal = flip_horizontal
-        self.stabilize = stabilize
-        
-    def fit(self, X, y=None):
-        return self
-        
-    def transform(self, X):
-        # Convert DataFrame to numpy if needed
-        if isinstance(X, pd.DataFrame):
-            X = X.values
-            
-        processed_data = []
-        num_samples = X.shape[0]
-        
-        for i in range(num_samples):
-            # Reshape to (21 landmarks, 3 coordinates)
-            sample = X[i].reshape(21, 3)
-            
-            # Optional: Flip horizontally (for left/right hand consistency)
-            if self.flip_horizontal:
-                sample[:, 0] = -sample[:, 0]  # Flip x-coordinates
-                
-            # Optional: Stabilization (reduce jitter)
-            if self.stabilize:
-                # Simple stabilization: set very small movements to zero
-                threshold = 0.01
-                sample[np.abs(sample) < threshold] = 0
-                
-            processed_data.append(sample.flatten())
-            
-        return np.array(processed_data)
 
 # Modified training.py with normalization
 df = pd.read_csv('Data_Collection/datasets/isl_data.csv')
