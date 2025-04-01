@@ -2,3 +2,5 @@ pandas
 opencv-python
 mediapipe
 scikit-learn
+flask
+flask-socketio
