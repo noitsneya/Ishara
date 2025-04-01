@@ -1,3 +1,4 @@
 pandas
 opencv-python
 mediapipe
+scikit-learn
