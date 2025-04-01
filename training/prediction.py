@@ -3,6 +3,8 @@ import mediapipe as mp
 import numpy as np
 import joblib
 import os
+from custom_transformers import MediaPipePreprocessor, HandSizeNormalizer
+import pandas as pd
 
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
@@ -23,8 +25,8 @@ threshold = 3  # Number of consecutive matches needed
 
 def preprocess_landmarks(landmarks):
     """Convert MediaPipe landmarks to pipeline-compatible format"""
-    # Extract coordinates in correct order (x0,y0,z0, x1,y1,z1,...)
-    return np.array([[lm.x, lm.y, lm.z for lm in landmarks.landmark]]).flatten()
+    return np.array([[lm.x, lm.y, lm.z] for lm in landmarks.landmark]).flatten()
+
 
 with mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5) as hands:
     while cap.isOpened():
@@ -66,6 +68,7 @@ with mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5) a
                     except Exception as e:
                         cv2.putText(image, f'Error: {str(e)}', (10, 30),
                                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                        print("Error: ", e)
 
                 # Draw landmarks
                 mp_drawing.draw_landmarks(
