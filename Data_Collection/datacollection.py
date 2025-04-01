@@ -73,6 +73,7 @@ try:
             continue
             
         collect_data_for_label(current_label)
+        cv2.destroyAllWindows()
 
 except KeyboardInterrupt:
 
@@ -84,4 +85,3 @@ except KeyboardInterrupt:
         
 finally:
     cap.release()
-    cv2.destroyAllWindows()
