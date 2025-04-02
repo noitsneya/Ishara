@@ -13,7 +13,7 @@ from custom_transformers import MediaPipePreprocessor, HandSizeNormalizer
 
 
 # Modified training.py with normalization
-df = pd.read_csv('Data_Collection/datasets/combined.csv')
+df = pd.read_csv('datasets/isl_data.csv')
 
 # Separate features (X) and labels (y)
 X = df.drop(columns=['label']).values.astype(float)  # All columns except 'label'

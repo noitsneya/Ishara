@@ -4,9 +4,10 @@ import numpy as np
 import pandas as pd
 
 class MediaPipePreprocessor(BaseEstimator, TransformerMixin):
-    def __init__(self, flip_horizontal=False, stabilize=True):
+    def __init__(self, flip_horizontal=False, stabilize=True, landmark_count=42):
         self.flip_horizontal = flip_horizontal
         self.stabilize = stabilize
+        self.landmark_count = landmark_count
 
     def fit(self, X, y=None):
         return self
@@ -17,7 +18,7 @@ class MediaPipePreprocessor(BaseEstimator, TransformerMixin):
 
         processed_data = []
         for sample in X:
-            sample = sample.reshape(21, 3)  # Assuming 21 landmarks with 3 coordinates each
+            sample = sample.reshape(self.landmark_count, 3)  # Assuming 21 landmarks with 3 coordinates each
             if self.flip_horizontal:
                 sample[:, 0] = -sample[:, 0]  # Flip x-coordinates
             if self.stabilize:
@@ -28,7 +29,7 @@ class MediaPipePreprocessor(BaseEstimator, TransformerMixin):
 
 # Add the hand size normalization function as a transformer
 class HandSizeNormalizer(BaseEstimator, TransformerMixin):
-    def __init__(self, landmark_count=21):
+    def __init__(self, landmark_count=42):
         self.landmark_count = landmark_count
         
     def fit(self, X, y=None):
@@ -43,7 +44,7 @@ class HandSizeNormalizer(BaseEstimator, TransformerMixin):
         num_samples = X.shape[0]
         
         for i in range(num_samples):
-            # Reshape to (21 landmarks, 3 coordinates)
+            # Reshape to (42 landmarks, 3 coordinates)
             sample = X[i].reshape(self.landmark_count, 3)
             
             # Get wrist position (first landmark in MediaPipe hand tracking)

@@ -11,7 +11,7 @@ mp_drawing = mp.solutions.drawing_utils
 
 # Load the entire processing pipeline
 try:
-    pipeline = joblib.load('models\pipeline_combined.joblib')
+    pipeline = joblib.load('models\pipeline_combined_02-04-2025-19-02-18.joblib')
     print("Model pipeline loaded successfully")
 except FileNotFoundError:
     pipeline = None
@@ -23,9 +23,27 @@ current_prediction = None
 confidence_counts = {}
 threshold = 10  # Number of consecutive matches needed
 
-def preprocess_landmarks(landmarks):
-    """Convert MediaPipe landmarks to pipeline-compatible format"""
-    return np.array([[lm.x, lm.y, lm.z] for lm in landmarks.landmark]).flatten()
+def preprocess_landmarks(left_hand_landmarks=None, right_hand_landmarks=None):
+    """
+    Convert MediaPipe landmarks for both hands to pipeline-compatible format
+    
+    Args:
+        left_hand_landmarks: MediaPipe landmarks for left hand
+        right_hand_landmarks: MediaPipe landmarks for right hand
+        
+    Returns:
+        Flattened numpy array with shape (126,) containing x,y,z coordinates
+        for 21 landmarks of both hands (21*3*2 = 126 values)
+    """
+    # Process left hand (21 landmarks × 3 coordinates = 63 values)
+    lh = np.array([[lm.x, lm.y, lm.z] for lm in left_hand_landmarks.landmark]).flatten() if left_hand_landmarks else np.zeros(21*3)
+    
+    # Process right hand (21 landmarks × 3 coordinates = 63 values)
+    rh = np.array([[lm.x, lm.y, lm.z] for lm in right_hand_landmarks.landmark]).flatten() if right_hand_landmarks else np.zeros(21*3)
+    
+    # Concatenate both hands into a single array (126 values total)
+    return np.concatenate([lh, rh])
+
 
 
 with mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5) as hands:
@@ -38,11 +56,23 @@ with mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5) a
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         results = hands.process(image)
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+        left_hand_landmarks = None
+        right_hand_landmarks = None
         
         if results.multi_hand_landmarks:
-            for hand_landmarks in results.multi_hand_landmarks:
-                # Extract and preprocess features
-                raw_features = preprocess_landmarks(hand_landmarks)
+            for idx, hand_landmarks in enumerate(results.multi_hand_landmarks):
+                # Get handedness (left or right) information
+                handedness = results.multi_handedness[idx].classification[0].label
+                
+                # Store landmarks based on handedness
+                if handedness == "Left":
+                    left_hand_landmarks = hand_landmarks
+                else:  # "Right"
+                    right_hand_landmarks = hand_landmarks
+            
+                # Extract and preprocess features for both hands at once
+                raw_features = preprocess_landmarks(left_hand_landmarks, right_hand_landmarks)
                 
                 if pipeline is not None:
                     try:

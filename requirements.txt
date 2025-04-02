@@ -4,3 +4,5 @@ mediapipe
 scikit-learn
 flask
 flask-socketio
+tensorflow
+sign_language_translator
