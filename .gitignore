@@ -1,5 +1,5 @@
 isharaEnv
+datasets/
 __pycache__
 pipeline_combined.joblib
-datasets/
 venv
