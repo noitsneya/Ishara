@@ -61,7 +61,7 @@ def train_and_evaluate_model(model, X_train, y_train, X_test, y_test):
 # Main function to execute the pipeline
 def main():
     # Path to your CSV file
-    file_path = "C:\\Users\\dell\\OneDrive\\Documents\\Desktop\\Ishara\\Ishara\\Data_Collection\\datasets\\nyaalpha.csv"  # Replace with your actual file path
+    file_path = "C://Users//dell//OneDrive//Documents//Desktop//Ishara//Ishara//Data_Collection//datasets//isl_data.csv"  # Replace with your actual file path
     
     # Load and preprocess data
     X, y = load_data(file_path)

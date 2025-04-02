@@ -1,1 +1,4 @@
 isharaEnv
+datasets/
+__pycache__
+venv
